@@ -20,34 +20,11 @@ namespace Vibhuti.BookStore
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
+        {  // IWebHostEnvironment reads the settings from the launchsettings.json and tells about the current env variable
+            if (env.IsDevelopment())  
+            {  //checks if the current env variable is Development in launchsettings.json
                 app.UseDeveloperExceptionPage();
             }
-
-            app.Use(async (context, next) =>
-            {
-                await context.Response.WriteAsync("Hello from first middleware\n");
-
-                await next(); // to call next middleware
-
-                await context.Response.WriteAsync("First again!!\n");
-            });
-
-            app.Use(async (context, next) =>
-            {
-                await context.Response.WriteAsync("Hello from second middleware\n");
-
-                await next();
-            });
-
-            app.Use(async (context, next) =>
-            {
-                await context.Response.WriteAsync("Hello from third middleware\n");
-
-                await next();
-            });
 
             app.UseRouting(); //to map the url to a particular resource (endpoints vale mei jo "MapGet()" krke h)
 
@@ -55,15 +32,23 @@ namespace Vibhuti.BookStore
             {
                 endpoints.Map("/", async context => //mapping a  particular url("/",i.e., domain itself) to a particular resource
                 {
-                    await context.Response.WriteAsync("Hello World!\n");
-                });
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/vibhuti", async context => //mapping only when GET request ++ url -> "domain/vibhuti"
-                {
-                    await context.Response.WriteAsync("Hello Vibhuti!\n");
+                    if(env.IsDevelopment())
+                    {
+                        await context.Response.WriteAsync("Hello from dev!");
+                    }
+                    else if(env.IsProduction())
+                    {
+                        await context.Response.WriteAsync("Hello from prod!");
+                    }
+                    else if(env.IsStaging())
+                    {
+                        await context.Response.WriteAsync("Hello from staging!");
+                    }
+                    else if (env.IsEnvironment("Develop") )
+                    {
+                        await context.Response.WriteAsync("Hello from other environments!");
+                    }
+                    await context.Response.WriteAsync("\nEnvironment name is " + env.EnvironmentName);
                 });
             });
         }
