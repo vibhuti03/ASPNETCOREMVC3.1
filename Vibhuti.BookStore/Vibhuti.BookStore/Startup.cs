@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Builder;
+ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
+using System; 
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,13 +26,44 @@ namespace Vibhuti.BookStore
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
+            app.Use(async (context, next) =>
+            {
+                await context.Response.WriteAsync("Hello from first middleware\n");
+
+                await next(); // to call next middleware
+
+                await context.Response.WriteAsync("First again!!\n");
+            });
+
+            app.Use(async (context, next) =>
+            {
+                await context.Response.WriteAsync("Hello from second middleware\n");
+
+                await next();
+            });
+
+            app.Use(async (context, next) =>
+            {
+                await context.Response.WriteAsync("Hello from third middleware\n");
+
+                await next();
+            });
+
+            app.UseRouting(); //to map the url to a particular resource (endpoints vale mei jo "MapGet()" krke h)
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
+                endpoints.Map("/", async context => //mapping a  particular url("/",i.e., domain itself) to a particular resource
                 {
-                    await context.Response.WriteAsync("Hello World!");
+                    await context.Response.WriteAsync("Hello World!\n");
+                });
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGet("/vibhuti", async context => //mapping only when GET request ++ url -> "domain/vibhuti"
+                {
+                    await context.Response.WriteAsync("Hello Vibhuti!\n");
                 });
             });
         }
